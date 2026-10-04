@@ -1,5 +1,15 @@
 # StartOver Company Portal
 
+
+<p align="center">
+  <a href="https://company-portal-qm50.onrender.com">
+    <img src="https://img.shields.io/badge/demo-live-brightgreen?style=for-the-badge&logo=render&logoColor=white" alt="Live Demo">
+  </a>
+  <img src="https://img.shields.io/badge/node.js-%3E%3D20-339933?style=for-the-badge&logo=node.js&logoColor=white" alt="Node">
+  <img src="https://img.shields.io/badge/postgresql-database-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL">
+  <img src="https://img.shields.io/badge/license-ISC-blue?style=for-the-badge" alt="License">
+</p>
+
 Two portals (**Admin** and **Employee**) in one Node.js app: live chat, teams and assignments, announcements,
 projects with a file store, progress charts, settings. Server-rendered with **EJS + HTMX + Alpine**, live updates
 over **Socket.IO**. The app itself is **stateless** — everything permanent lives outside it:
@@ -31,6 +41,18 @@ over **Socket.IO**. The app itself is **stateless** — everything permanent liv
   connection or a Render wake-up the browser reconnects, re-joins its room and reloads the history from the database.
 
 ---
+
+## 🚀 Live Demo
+
+**[company-portal-qm50.onrender.com](https://company-portal-qm50.onrender.com)**
+
+> Hosted on Render's free tier — if it's been idle a few minutes, the first load can take 30–50s to wake up. That's normal, not a bug.
+
+| Portal | Path |
+|---|---|
+| Employee | [`/register`](https://company-portal-qm50.onrender.com/register) — create an account and look around |
+| Admin | `/login/admin` — kept private, not for public demo use |
+
 
 ## 1. Run it locally (Windows / macOS / Linux, with Docker Desktop)
 
