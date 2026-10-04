@@ -1,0 +1,15 @@
+<% const isDone = Boolean(project.completed_at); %>
+<div class="project-card<%= isDone ? ' is-done' : '' %>" style="--project-color: <%= project.color %>" data-bulk-item data-id="<%= project.id %>"
+     hx-get="/projects/<%= project.id %>" hx-target="#modal-root" hx-swap="innerHTML" hx-trigger="click, keydown[key=='Enter']" role="button" tabindex="0">
+  <div class="project-card-bar"></div>
+  <span class="bulk-check"><%- icon('check', 12) %></span>
+  <div class="project-card-body">
+    <h4><%= project.name %><% if (isDone) { %> <span class="star" title="Completed"><%- icon('star', 14) %></span><% } %></h4>
+    <% if (project.concept) { %><p class="project-concept"><%= project.concept %></p><% } %>
+    <% if (project.details) { %><p class="project-details"><%= project.details %></p><% } %>
+    <div class="project-foot">
+      <span class="project-date"><%= timeAgo(project.created_at) %></span>
+      <span class="project-files" title="Files stored in this project"><%- icon('folder', 12) %> <%= project.file_count || 0 %> file<%= project.file_count === 1 ? '' : 's' %><% if (project.total_size) { %> &middot; <%= formatSize(project.total_size) %><% } %></span>
+    </div>
+  </div>
+</div>

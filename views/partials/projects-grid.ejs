@@ -1,0 +1,6 @@
+<% if (!projects.length) { %>
+  <p class="empty-note"><%= editable ? 'No projects yet. Click "New project" to start one.' : 'No projects here yet.' %></p>
+<% } %>
+<% projects.forEach(project => { %>
+  <%- include('./project-card', { project }) %>
+<% }) %>

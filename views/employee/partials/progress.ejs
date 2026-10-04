@@ -1,0 +1,15 @@
+<div class="panel-header">
+  <h2>Progress</h2>
+  <p class="panel-sub">How much you worked each day, and what you have finished.</p>
+</div>
+
+<div class="stat-grid">
+  <div class="stat-card"><span class="stat-value"><%= stats.assigned %></span><span class="stat-label">Assigned</span></div>
+  <div class="stat-card"><span class="stat-value"><%= stats.submitted %></span><span class="stat-label">Submitted</span></div>
+  <div class="stat-card"><span class="stat-value"><%= stats.approved %></span><span class="stat-label">Approved</span></div>
+  <div class="stat-card"><span class="stat-value"><%= stats.projects_done %>/<%= stats.projects %></span><span class="stat-label">Projects done</span></div>
+  <div class="stat-card"><span class="stat-value"><%= stats.teamSubmitted %></span><span class="stat-label">Team assignments submitted</span></div>
+  <div class="stat-card"><span class="stat-value"><%= stats.teamApproved %></span><span class="stat-label">Team assignments approved</span></div>
+</div>
+
+<%- include('../../partials/activity-chart', { activity, exportUrl, canPickRange }) %>

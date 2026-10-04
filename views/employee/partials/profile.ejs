@@ -1,0 +1,53 @@
+<div class="panel-header">
+  <h2>Your profile</h2>
+  <p class="panel-sub">Visible to your admin. Your name and email are fixed to your account.</p>
+</div>
+
+<% if (typeof justSaved !== 'undefined' && justSaved) { %><div class="inline-success"><%- icon('check', 14) %> Profile updated</div><% } %>
+
+<div class="card">
+  <form method="POST" action="/employee/profile" enctype="multipart/form-data" class="profile-form">
+    <div class="profile-avatar-row">
+      <label class="avatar-edit" for="avatarInput">
+        <div class="avatar avatar-lg" id="avatarPreview">
+          <% if (user.avatar_path) { %><img src="<%= user.avatar_path %>" alt=""><% } else { %><%- icon('user', 28) %><% } %>
+        </div>
+        <span class="avatar-edit-badge"><%- icon('camera', 13) %></span>
+      </label>
+      <div>
+        <p class="avatar-edit-hint">Click your photo to change it</p>
+        <p class="field-hint">Or leave it blank - shows a default icon instead, like an unset DP</p>
+      </div>
+      <input type="file" id="avatarInput" name="avatar" accept="image/*" hidden>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Full name</label>
+        <input type="text" value="<%= user.full_name %>" disabled>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="text" value="<%= user.email %>" disabled>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="phone">Phone</label>
+      <input id="phone" type="tel" name="phone" value="<%= user.phone %>">
+    </div>
+
+    <div class="form-group">
+      <label for="bio">About you</label>
+      <textarea id="bio" name="bio" rows="3" placeholder="A short bio for your team"><%= user.bio %></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="skills">Skills</label>
+      <input id="skills" type="text" name="skills" value="<%= user.skills %>" placeholder="e.g. React, Three.js, WebGL">
+      <span class="field-hint">Comma-separated</span>
+    </div>
+
+    <button class="btn btn-primary" type="submit">Save profile</button>
+  </form>
+</div>

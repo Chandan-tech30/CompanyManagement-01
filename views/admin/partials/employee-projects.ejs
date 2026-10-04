@@ -1,0 +1,12 @@
+<a class="back-link" href="/admin/tab/projects" hx-get="/admin/tab/projects" hx-target="#main-panel" hx-swap="innerHTML" hx-push-url="true">
+  <%- icon('arrowLeft', 16) %> All employees
+</a>
+
+<div class="panel-header">
+  <h2><%= employee.full_name %>'s projects</h2>
+  <p class="panel-sub">Read-only view. Open a project to see and download its files.</p>
+</div>
+
+<div class="project-grid">
+  <%- include('../../partials/projects-grid', { projects, editable: false }) %>
+</div>

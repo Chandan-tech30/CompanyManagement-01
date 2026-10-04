@@ -1,0 +1,19 @@
+<div class="panel-header">
+  <h2>Teams</h2>
+  <p class="panel-sub">The teams you belong to: assignments from the admin, and the team chat.</p>
+</div>
+
+<div class="team-grid">
+  <% if (!teams.length) { %><p class="empty-note">You are not in a team yet. When the admin adds you to one, it shows up here.</p><% } %>
+  <% teams.forEach(t => { %>
+    <a class="team-card" href="/employee/teams/<%= t.id %>" hx-get="/employee/teams/<%= t.id %>" hx-target="#main-panel" hx-swap="innerHTML" hx-push-url="true">
+      <div class="team-card-top"><span class="team-card-icon"><%- icon('team', 20) %></span></div>
+      <h4><%= t.name %></h4>
+      <% if (t.description) { %><p class="muted"><%= t.description %></p><% } %>
+      <div class="team-card-foot">
+        <span><%- icon('users', 13) %> <%= t.member_count %></span>
+        <span><%- icon('briefcase', 13) %> <%= t.assignment_count %> assignment<%= t.assignment_count === 1 ? '' : 's' %></span>
+      </div>
+    </a>
+  <% }) %>
+</div>

@@ -1,0 +1,40 @@
+<%# locals: a, isAdmin, highlight (optional) %>
+<% const media = (a.files || []); const hl = typeof highlight !== 'undefined' && highlight === a.id; %>
+<article class="announcement-card<%= hl ? ' highlight' : '' %>" id="announcement-<%= a.id %>" data-announcement-id="<%= a.id %>">
+  <header class="announcement-head">
+    <div>
+      <h3><%= a.topic %></h3>
+      <span class="muted">
+        <%= timeAgo(a.created_at) %>
+        <% if (isAdmin) { %> &middot; <%= a.audience === 'all' ? 'sent to all employees' : ('sent to ' + a.recipient_count + ' selected employee' + (a.recipient_count === 1 ? '' : 's')) %><% } %>
+      </span>
+    </div>
+    <% if (isAdmin) { %>
+      <div class="announcement-actions">
+        <button type="button" class="btn btn-ghost btn-sm" data-copy="<%= baseUrl %>/employee/announcements/<%= a.id %>" title="Copy the link to this announcement"><%- icon('link', 14) %> Copy link</button>
+        <button type="button" class="btn btn-danger btn-sm" hx-post="/admin/announcements/<%= a.id %>/delete" hx-target="#announcement-list" hx-swap="innerHTML"
+                hx-confirm="Delete this announcement? It will disappear for every employee."><%- icon('trash', 14) %> Delete</button>
+      </div>
+    <% } %>
+  </header>
+
+  <% if (a.description) { %><p class="announcement-desc"><%= a.description %></p><% } %>
+
+  <% if (media.length) { %>
+    <div class="announcement-media">
+      <% media.forEach(f => { const kind = fileKind(f); %>
+        <% if (kind === 'video') { %>
+          <video controls preload="metadata" src="/files/<%= f.id %>"></video>
+        <% } else if (kind === 'image') { %>
+          <a href="/files/<%= f.id %>" target="_blank" rel="noopener"><img src="/files/<%= f.id %>" alt="<%= f.name %>" loading="lazy"></a>
+        <% } else { %>
+          <a class="bubble-file" href="/files/<%= f.id %>?dl=1" download><span class="bubble-file-icon"><%- icon('file', 18) %></span><span class="bubble-file-text"><strong><%= f.name %></strong><small><%= formatSize(f.size) %></small></span></a>
+        <% } %>
+      <% }) %>
+    </div>
+  <% } %>
+
+  <% if (a.link_url) { %>
+    <a class="btn btn-primary btn-sm" href="<%= a.link_url %>" target="_blank" rel="noopener noreferrer"><%- icon('link', 14) %> Open link</a>
+  <% } %>
+</article>

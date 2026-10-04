@@ -1,0 +1,40 @@
+<% const dl = task.deadline ? formatDeadline(task.deadline) : null; %>
+<div class="task-card" <% if (task.status === 'approved') { %>data-bulk-item data-id="<%= task.id %>"<% } %>>
+  <% if (task.status === 'approved') { %><span class="bulk-check"><%- icon('check', 12) %></span><% } %>
+  <div class="task-card-head">
+    <h4><%= task.title %></h4>
+    <span class="badge badge-status-<%= task.status %>"><%= task.status %></span>
+  </div>
+  <% if (task.description) { %><p class="task-desc"><%= task.description %></p><% } %>
+  <% if (dl) { %>
+    <deadline-countdown datetime="<%= dl.iso %>" class="badge badge-<%= dl.cls %>"><%= dl.label %></deadline-countdown>
+  <% } %>
+
+  <% if (viewerRole === 'employee' && task.status === 'assigned') { %>
+    <form class="submit-form" action="/employee/tasks/<%= task.id %>/submit" method="post" data-upload-form data-response="html" data-target="#tasks-panel" data-swap="outerHTML">
+      <textarea name="submission_note" rows="2" placeholder="Add a note about your submission (optional)"></textarea>
+      <%- include('./uploader', { folders: true }) %>
+      <div class="submit-form-row">
+        <span class="field-hint">Attach files or a whole folder, then submit.</span>
+        <button class="btn btn-primary btn-sm" type="submit">Mark as submitted</button>
+      </div>
+    </form>
+  <% } %>
+
+  <% if (task.status === 'submitted' || task.status === 'approved') { %>
+    <div class="task-submission">
+      <% if (task.submission_note) { %><p class="task-note"><%= task.submission_note %></p><% } %>
+      <%- include('./file-list', { files: task.files, zipUrl: `/files/zip/task/${task.id}` }) %>
+    </div>
+  <% } %>
+
+  <% if (viewerRole === 'admin' && task.status === 'submitted') { %>
+    <form hx-post="/admin/employees/<%= task.employee_id %>/tasks/<%= task.id %>/approve" hx-target="#tasks-panel" hx-swap="outerHTML">
+      <button class="btn btn-success btn-sm" type="submit"><%- icon('check', 14) %> Approve</button>
+    </form>
+  <% } %>
+
+  <% if (task.status === 'approved') { %>
+    <p class="task-approved"><%- icon('check', 14) %> Approved</p>
+  <% } %>
+</div>

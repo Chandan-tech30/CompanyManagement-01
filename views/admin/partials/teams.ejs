@@ -1,0 +1,60 @@
+<div class="panel-header-row">
+  <div>
+    <h2>Teams</h2>
+    <p class="panel-sub">Group employees, give the team work, chat with them, and review what they submit.</p>
+  </div>
+  <div class="header-actions" x-data="{ open: false }">
+    <button type="button" class="btn btn-primary" @click="open = true"><%- icon('plus', 14) %> New team</button>
+    <div class="modal-backdrop" x-show="open" x-cloak @click.self="open = false" style="display:none">
+      <div class="modal modal-lg">
+        <div class="modal-head"><h3>New team</h3><button type="button" class="icon-btn" @click="open = false" aria-label="Close"><%- icon('x', 18) %></button></div>
+        <form hx-post="/admin/teams" hx-target="#main-panel" hx-swap="innerHTML" hx-push-url="false">
+          <div class="form-group">
+            <label for="tm-name">Team name</label>
+            <input id="tm-name" type="text" name="name" required maxlength="120" placeholder="e.g. Website redesign">
+          </div>
+          <div class="form-group">
+            <label for="tm-desc">Description <span class="muted">(optional)</span></label>
+            <textarea id="tm-desc" name="description" rows="2" maxlength="1000" placeholder="What is this team for?"></textarea>
+          </div>
+          <fieldset class="opt-group">
+            <legend>Who can write in the team chat?</legend>
+            <label class="opt"><input type="radio" name="chat_mode" value="all" checked><span>Every member</span></label>
+            <label class="opt"><input type="radio" name="chat_mode" value="admin_only"><span>Only me (admin)</span></label>
+            <label class="opt"><input type="radio" name="chat_mode" value="selected"><span>Selected members</span></label>
+          </fieldset>
+          <p class="field-hint">Members can always submit files or folders to you from the assignments, whatever you choose here.</p>
+          <fieldset class="opt-group">
+            <legend>Members</legend>
+            <div class="recipient-picker">
+              <% if (!employees.length) { %><p class="empty-note">No approved employees yet.</p><% } %>
+              <% employees.forEach(e => { %>
+                <label class="opt recipient"><input type="checkbox" name="members" value="<%= e.id %>"><span><%= e.full_name %> <small class="muted"><%= e.job_role %></small></span></label>
+              <% }) %>
+            </div>
+          </fieldset>
+          <button class="btn btn-primary btn-block" type="submit" @click="setTimeout(() => open = false, 50)">Create team</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="team-grid">
+  <% if (!teams.length) { %><p class="empty-note">No teams yet. Create one to get started.</p><% } %>
+  <% teams.forEach(t => { %>
+    <a class="team-card" href="/admin/teams/<%= t.id %>" hx-get="/admin/teams/<%= t.id %>" hx-target="#main-panel" hx-swap="innerHTML" hx-push-url="true">
+      <div class="team-card-top">
+        <span class="team-card-icon"><%- icon('team', 20) %></span>
+        <% if (t.pending_reviews) { %><span class="nav-badge" title="Submissions waiting for review"><%= t.pending_reviews %></span><% } %>
+      </div>
+      <h4><%= t.name %></h4>
+      <% if (t.description) { %><p class="muted"><%= t.description %></p><% } %>
+      <div class="team-card-foot">
+        <span><%- icon('users', 13) %> <%= t.member_count %></span>
+        <span><%- icon('briefcase', 13) %> <%= t.assignment_count %> assignment<%= t.assignment_count === 1 ? '' : 's' %></span>
+        <span class="badge"><%= t.chat_mode === 'all' ? 'Everyone chats' : (t.chat_mode === 'admin_only' ? 'Admin only chat' : 'Selected chat') %></span>
+      </div>
+    </a>
+  <% }) %>
+</div>

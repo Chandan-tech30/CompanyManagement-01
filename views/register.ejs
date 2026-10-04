@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><%- include('./partials/head', { title }) %></head>
+<body>
+  <div class="auth-page employee-theme">
+    <div class="orb orb-a"></div>
+    <div class="orb orb-b"></div>
+    <div class="auth-card">
+      <a class="back-link" href="/"><%- icon('arrowLeft', 16) %> Back</a>
+      <div class="auth-brand"><%- icon('user', 20) %><span>Create your account</span></div>
+      <p class="auth-hint">Register as an employee. You'll verify your email, then wait for admin approval.</p>
+
+      <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+
+      <form method="POST" action="/register" class="auth-form">
+        <div class="form-group">
+          <label for="full_name">Full name</label>
+          <input id="full_name" name="full_name" type="text" required value="<%= values.full_name || '' %>" placeholder="Jordan Reyes">
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" required value="<%= values.email || '' %>" placeholder="you@example.com">
+        </div>
+        <div class="form-group">
+          <label for="phone">Phone number</label>
+          <input id="phone" name="phone" type="tel" required value="<%= values.phone || '' %>" placeholder="+1 555 123 4567">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" required minlength="8" placeholder="At least 8 characters">
+          </div>
+          <div class="form-group">
+            <label for="confirm_password">Confirm password</label>
+            <input id="confirm_password" name="confirm_password" type="password" required minlength="8" placeholder="Repeat password">
+          </div>
+        </div>
+        <button class="btn btn-primary btn-block" type="submit">Create account</button>
+      </form>
+      <p class="auth-switch">Already have an account? <a href="/login/employee">Log in</a></p>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,49 @@
+# Local development helpers: a PostgreSQL database and an S3-compatible file store,
+# so you don't have to install either on your computer.
+#
+#   docker compose up -d      start both (first run downloads the images)
+#   docker compose ps         check that they are running
+#   docker compose stop       stop them (data is kept)
+#   docker compose down -v    stop AND delete all their data (fresh start)
+#
+# The values below match .env.docker.example — copy that file to .env and you are set.
+# These passwords are for local development only. Never reuse them anywhere real.
+services:
+  postgres:
+    image: postgres:16
+    container_name: portal-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: portal
+      POSTGRES_PASSWORD: portal_dev_pw
+      POSTGRES_DB: company_portal
+    ports:
+      - "5432:5432"
+    volumes:
+      - portal_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U portal -d company_portal"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # S3-compatible object storage (stands in for Cloudflare R2 / AWS S3).
+  # MinIO stopped publishing its official Docker images, so this uses SILO, a maintained MinIO fork
+  # with the same commands, settings and web console.
+  storage:
+    image: pgsty/silo:latest
+    container_name: portal-storage
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: portaladmin
+      MINIO_ROOT_PASSWORD: portaladmin-secret
+    ports:
+      - "9000:9000"   # S3 API  -> S3_ENDPOINT
+      - "9001:9001"   # web console -> http://localhost:9001
+    volumes:
+      - portal_files:/data
+
+volumes:
+  portal_pgdata:
+  portal_files:

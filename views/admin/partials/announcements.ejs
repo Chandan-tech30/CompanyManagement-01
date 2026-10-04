@@ -1,0 +1,47 @@
+<div class="panel-header">
+  <h2>Announcement</h2>
+  <p class="panel-sub">Post news to everyone, or only to the employees you pick. Deleting an announcement removes it for every employee.</p>
+</div>
+
+<div class="card">
+  <h3>New announcement</h3>
+  <form action="/admin/announcements" method="post" data-upload-form data-response="html" data-target="#announcement-list" data-swap="innerHTML"
+        x-data="{ audience: 'all' }" @reset="audience = 'all'">
+    <div class="form-group">
+      <label for="an-topic">Topic</label>
+      <input id="an-topic" type="text" name="topic" required maxlength="200" placeholder="What is this about?">
+    </div>
+    <div class="form-group">
+      <label for="an-desc">Description</label>
+      <textarea id="an-desc" name="description" rows="4" maxlength="5000" placeholder="Details for your team"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Attachment <span class="muted">(photos or videos, optional)</span></label>
+      <%- include('../../partials/uploader', { folders: false, accept: 'image/*,video/*', maxMb: (typeof MAX_MEDIA_MB !== 'undefined' ? MAX_MEDIA_MB : 50) }) %>
+    </div>
+    <div class="form-group">
+      <label for="an-link">Link <span class="muted">(optional)</span></label>
+      <input id="an-link" type="text" name="link_url" maxlength="1000" placeholder="https://example.com/more-info">
+    </div>
+
+    <fieldset class="opt-group">
+      <legend>Send to</legend>
+      <label class="opt"><input type="radio" name="audience" value="all" checked @change="audience = 'all'"><span>All employees</span></label>
+      <label class="opt"><input type="radio" name="audience" value="selected" @change="audience = 'selected'"><span>Selected employees</span></label>
+    </fieldset>
+    <div class="recipient-picker" x-show="audience === 'selected'" x-cloak style="display:none">
+      <% if (!employees.length) { %>
+        <p class="empty-note">No approved employees yet.</p>
+      <% } %>
+      <% employees.forEach(e => { %>
+        <label class="opt recipient"><input type="checkbox" name="recipients" value="<%= e.id %>"><span><%= e.full_name %> <small class="muted"><%= e.job_role %></small></span></label>
+      <% }) %>
+    </div>
+
+    <button class="btn btn-primary" type="submit"><%- icon('megaphone', 14) %> Publish announcement</button>
+  </form>
+</div>
+
+<div id="announcement-list" class="announcement-list">
+  <%- include('./announcement-list', { announcements }) %>
+</div>

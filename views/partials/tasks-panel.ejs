@@ -1,0 +1,41 @@
+<%
+  const hideUrl = viewerRole === 'admin' ? `/admin/employees/${employeeId}/tasks/hide` : '/employee/tasks/hide';
+  const hasApproved = tasks.some(t => t.status === 'approved');
+%>
+<div id="tasks-panel" class="tasks-panel" data-refresh-url="<%= tasksRefreshUrl %>" data-employee-id="<%= employeeId %>"
+     data-bulk data-url="<%= hideUrl %>" data-target="#tasks-panel" data-swap="outerHTML" data-noun="completed task" data-verb="Remove">
+  <% if (canAssign) { %>
+    <form class="assign-form" hx-post="/admin/employees/<%= employeeId %>/tasks" hx-target="#tasks-panel" hx-swap="outerHTML">
+      <h4>Assign new work</h4>
+      <input type="text" name="title" placeholder="Task title" required>
+      <textarea name="description" rows="2" placeholder="Details (optional)"></textarea>
+      <div class="assign-form-row">
+        <label class="assign-deadline-label">
+          Deadline
+          <input type="datetime-local" name="deadline">
+        </label>
+        <button class="btn btn-primary btn-sm" type="submit"><%- icon('plus', 14) %> Assign</button>
+      </div>
+    </form>
+  <% } %>
+
+  <% if (hasApproved) { %>
+    <div class="bulk-toolbar">
+      <button type="button" class="btn btn-ghost btn-sm" data-bulk-toggle title="Select completed tasks to remove them from your list"><%- icon('checkSquare', 14) %> Select</button>
+      <div class="bulk-bar" data-bulk-bar hidden>
+        <span data-bulk-count>0 selected</span>
+        <button type="button" class="btn btn-danger btn-sm" data-bulk-delete><%- icon('trash', 14) %> Remove from my list</button>
+        <button type="button" class="btn btn-ghost btn-sm" data-bulk-cancel>Cancel</button>
+      </div>
+    </div>
+  <% } %>
+
+  <div class="task-list">
+    <% if (!tasks.length) { %>
+      <p class="empty-note"><%= canAssign ? 'No work assigned to ' + employeeName + ' yet.' : 'Nothing assigned yet. Check back soon.' %></p>
+    <% } %>
+    <% tasks.forEach(task => { %>
+      <%- include('./task-card', { task, viewerRole }) %>
+    <% }) %>
+  </div>
+</div>

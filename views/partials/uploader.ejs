@@ -1,0 +1,24 @@
+<%#
+  Reusable "add files or a whole folder" picker with live previews, remove buttons and progress.
+  Put it inside a <form data-upload-form ...>; public/js/uploader.js does the rest.
+  Options: folders (default true), accept (e.g. "image/*,video/*"), maxMb (default 25)
+%>
+<%
+  const withFolders = typeof folders === 'undefined' ? true : folders;
+  const acceptAttr = typeof accept === 'undefined' ? '' : accept;
+  const limitMb = typeof maxMb === 'undefined' ? (typeof MAX_UPLOAD_MB !== 'undefined' ? MAX_UPLOAD_MB : 25) : maxMb;
+%>
+<div class="uploader-box" data-uploader data-max-mb="<%= limitMb %>">
+  <div class="uploader-drop" data-drop>
+    <div class="uploader-actions">
+      <button type="button" class="btn btn-ghost btn-sm" data-pick="files"><%- icon('file', 14) %> Add files</button>
+      <% if (withFolders) { %><button type="button" class="btn btn-ghost btn-sm" data-pick="folder"><%- icon('folder', 14) %> Add folder</button><% } %>
+    </div>
+    <span class="field-hint">or drop <%= withFolders ? 'files / a folder' : 'files' %> here &middot; up to <%= limitMb %> MB each</span>
+  </div>
+  <div class="uploader-previews" data-previews hidden></div>
+  <input type="file" multiple hidden data-input="files" <% if (acceptAttr) { %>accept="<%= acceptAttr %>"<% } %>>
+  <% if (withFolders) { %><input type="file" webkitdirectory multiple hidden data-input="folder"><% } %>
+</div>
+<div class="upload-progress" data-progress hidden><span class="upload-progress-bar" data-progress-bar></span><span class="upload-progress-text" data-progress-text></span></div>
+<div class="inline-error" data-error hidden></div>

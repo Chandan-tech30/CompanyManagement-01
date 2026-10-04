@@ -1,0 +1,23 @@
+<div class="panel-header">
+  <h2>Company</h2>
+  <p class="panel-sub">Set by your admin from their Home tab.</p>
+</div>
+
+<div class="card company-view">
+  <div class="company-view-head">
+    <% if (company.logo_path) { %>
+      <img src="<%= company.logo_path %>" class="company-logo-lg" alt="<%= company.name %> logo">
+    <% } else { %>
+      <span class="company-logo-placeholder-lg"><%- icon('building', 28) %></span>
+    <% } %>
+    <h3><%= company.name %></h3>
+  </div>
+  <div class="company-view-section">
+    <h4>Ethics &amp; values</h4>
+    <p><%= company.ethics %></p>
+  </div>
+  <div class="company-view-section">
+    <h4>Agenda &amp; mission</h4>
+    <p><%= company.agenda %></p>
+  </div>
+</div>

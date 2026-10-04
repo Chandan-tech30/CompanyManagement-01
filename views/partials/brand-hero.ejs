@@ -1,0 +1,14 @@
+<%
+  const brandName = (typeof company !== 'undefined' && company && company.name) ? company.name : 'Company';
+  const brandChars = brandName.split('');
+  const size = typeof heroSize !== 'undefined' ? heroSize : 64;
+%>
+<div class="brand-hero">
+  <div class="brand-badge" style="width:<%= size %>px;height:<%= size %>px" aria-hidden="true">
+    <svg viewBox="0 0 24 24"><path d="M12 2.75a9.25 9.25 0 1 0 4.737 17.197l-1.423-1.423A7.25 7.25 0 1 1 19.25 12h-2.5l3.25-3.25 3.25 3.25h-2.5A9.25 9.25 0 0 0 12 2.75z"/></svg>
+  </div>
+  <h1 class="brand-hero-word">
+    <span class="brand-hero-letters" aria-hidden="true"><% brandChars.forEach((ch, i) => { %><span style="animation-delay: <%= (0.55 + i * 0.045).toFixed(2) %>s"><%= ch %></span><% }) %></span>
+    <span class="sr-only"><%= brandName %></span>
+  </h1>
+</div>

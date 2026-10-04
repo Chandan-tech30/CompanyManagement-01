@@ -1,0 +1,12 @@
+<% if (!q) { %>
+  <p class="search-empty">Type a name to find an employee.</p>
+<% } else if (!results.length) { %>
+  <p class="search-empty">No employee found for &ldquo;<%= q %>&rdquo;.</p>
+<% } else { %>
+  <% results.forEach(r => { const ok = r.status === 'approved'; const href = ok ? `/admin/employees/${r.id}` : '/admin/tab/registrations'; %>
+    <a class="search-hit" href="<%= href %>" hx-get="<%= href %>" hx-target="#main-panel" hx-swap="innerHTML" hx-push-url="true" @click="open = false; $root.querySelector('input').value = ''">
+      <span class="avatar avatar-sm"><% if (r.avatar_path) { %><img src="<%= r.avatar_path %>" alt=""><% } else { %><%- icon('user', 14) %><% } %></span>
+      <span class="search-hit-text"><strong><%= r.full_name %></strong><small class="muted"><%= ok ? r.job_role : 'Waiting for approval' %></small></span>
+    </a>
+  <% }) %>
+<% } %>

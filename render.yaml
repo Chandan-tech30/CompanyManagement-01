@@ -1,0 +1,39 @@
+# Optional Render "Blueprint": New → Blueprint → pick your repo.
+# Secrets are marked sync:false — Render asks you for them in the dashboard (nothing secret lives in git).
+services:
+  - type: web
+    name: company-portal
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: NODE_ENV
+        value: production
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: APP_BASE_URL          # e.g. https://company-portal.onrender.com (set after the first deploy)
+        sync: false
+      - key: APP_TIMEZONE          # e.g. Asia/Kolkata — decides where a "day" ends in the activity chart
+        value: UTC
+      - key: DATABASE_URL          # Neon / Supabase / any PostgreSQL connection string
+        sync: false
+      - key: S3_ENDPOINT           # R2: https://<ACCOUNT_ID>.r2.cloudflarestorage.com
+        sync: false
+      - key: S3_BUCKET
+        sync: false
+      - key: S3_ACCESS_KEY_ID
+        sync: false
+      - key: S3_SECRET_ACCESS_KEY
+        sync: false
+      - key: S3_REGION
+        value: auto
+      - key: ADMIN_NAME
+        value: Company Admin
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false

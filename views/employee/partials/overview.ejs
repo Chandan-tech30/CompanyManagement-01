@@ -1,0 +1,41 @@
+<div class="panel-header">
+  <h2>Welcome back, <%= user.full_name.split(' ')[0] %></h2>
+  <p class="panel-sub"><%= company.name %></p>
+</div>
+
+<div class="stat-grid">
+  <div class="stat-card">
+    <span class="stat-value"><%= stats.assigned %></span>
+    <span class="stat-label">Assigned tasks</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-value"><%= stats.submitted %></span>
+    <span class="stat-label">Awaiting review</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-value"><%= stats.projects %></span>
+    <span class="stat-label">Personal projects</span>
+  </div>
+  <div class="stat-card <%= stats.unread ? 'stat-card-alert' : '' %>">
+    <span class="stat-value"><%= stats.unread ? 'New' : '0' %></span>
+    <span class="stat-label">Unread from admin</span>
+  </div>
+</div>
+
+<% if (upcoming) { %>
+  <% const dl = formatDeadline(upcoming.deadline); %>
+  <div class="card highlight-card">
+    <h3>Next deadline</h3>
+    <p class="highlight-title"><%= upcoming.title %></p>
+    <deadline-countdown datetime="<%= dl.iso %>" class="badge badge-<%= dl.cls %>"><%= dl.label %></deadline-countdown>
+  </div>
+<% } %>
+
+<div class="quick-links">
+  <a class="quick-link" href="/employee/tab/work" hx-get="/employee/tab/work" hx-target="#main-panel" hx-swap="innerHTML" hx-push-url="true">
+    <%- icon('message') %> Open Work &amp; chat
+  </a>
+  <a class="quick-link" href="/employee/tab/projects" hx-get="/employee/tab/projects" hx-target="#main-panel" hx-swap="innerHTML" hx-push-url="true">
+    <%- icon('folder') %> View your projects
+  </a>
+</div>

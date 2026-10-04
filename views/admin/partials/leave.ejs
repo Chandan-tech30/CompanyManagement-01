@@ -1,0 +1,41 @@
+<div class="panel-header">
+  <h2>Leave requests</h2>
+  <p class="panel-sub">Notes from employees who want time off or want to leave the portal.</p>
+</div>
+
+<% if (!pending.length) { %>
+  <p class="empty-note">No pending requests.</p>
+<% } %>
+<% pending.forEach(r => { %>
+  <div class="card leave-card">
+    <div class="leave-card-top">
+      <div>
+        <strong><%= r.full_name %></strong> <span class="muted">&middot; <%= r.job_role %> &middot; <%= r.email %></span>
+        <div><span class="badge <%= r.kind === 'leave_portal' ? 'badge-danger' : '' %>"><%= r.kind === 'time_off' ? 'Time off' : 'Wants to leave the portal' %></span>
+          <% if (r.kind === 'time_off') { %><span class="muted"><%= r.start_date %> &rarr; <%= r.end_date %></span><% } %>
+          <span class="muted">&middot; <%= timeAgo(r.created_at) %></span></div>
+      </div>
+    </div>
+    <p class="leave-reason"><%= r.reason %></p>
+    <form hx-post="/admin/leave/<%= r.id %>/decide" hx-target="#main-panel" hx-swap="innerHTML" class="leave-decide">
+      <input type="text" name="note" maxlength="1000" placeholder="Note back to the employee (optional)">
+      <button class="btn btn-success btn-sm" type="submit" name="decision" value="approve"
+              <% if (r.kind === 'leave_portal') { %>hx-confirm="Approving closes this employee's account and signs them out. Continue?"<% } %>><%- icon('check', 14) %> Approve</button>
+      <button class="btn btn-danger btn-sm" type="submit" name="decision" value="reject">Decline</button>
+    </form>
+  </div>
+<% }) %>
+
+<% if (history.length) { %>
+  <h3 class="col-title">Earlier</h3>
+  <table class="data-table">
+    <% history.forEach(r => { %>
+      <tr>
+        <td><%= r.full_name %></td>
+        <td><%= r.kind === 'time_off' ? 'Time off' : 'Leave portal' %></td>
+        <td><span class="badge badge-status-<%= r.status === 'approved' ? 'approved' : 'assigned' %>"><%= r.status %></span></td>
+        <td class="muted"><%= r.admin_note || '' %></td>
+      </tr>
+    <% }) %>
+  </table>
+<% } %>

@@ -1,0 +1,66 @@
+<div class="modal-backdrop" data-modal>
+  <div class="modal modal-lg project-modal" style="--project-color: <%= project.color %>">
+    <div class="modal-head">
+      <div>
+        <h3><%= project.name %> <% if (project.completed_at) { %><span class="star" title="Completed"><%- icon('star', 16) %></span><% } %></h3>
+        <% if (project.concept) { %><p class="muted"><%= project.concept %></p><% } %>
+      </div>
+      <button type="button" class="icon-btn" data-close-modal aria-label="Close"><%- icon('x', 18) %></button>
+    </div>
+
+    <% if (project.details) { %><p class="project-modal-details"><%= project.details %></p><% } %>
+
+    <div class="modal-actions">
+      <span class="badge"><%- icon('folder', 12) %> <%= fileCount %> file<%= fileCount === 1 ? '' : 's' %><% if (totalSize) { %> &middot; <%= formatSize(totalSize) %><% } %></span>
+      <% if (project.completed_at) { %><span class="badge badge-status-approved">Completed <%= timeAgo(project.completed_at) %></span><% } %>
+      <span class="grow"></span>
+      <% if (fileCount > 1) { %><a class="btn btn-ghost btn-sm" href="/files/zip/project/<%= project.id %>"><%- icon('download', 14) %> Download all (.zip)</a><% } %>
+      <% if (editable) { %>
+        <button type="button" class="btn btn-ghost btn-sm" hx-post="/projects/<%= project.id %>/complete" hx-target="#modal-root" hx-swap="innerHTML">
+          <%- icon('star', 14) %> <%= project.completed_at ? 'Reopen' : 'Mark completed' %>
+        </button>
+        <button type="button" class="btn btn-danger btn-sm" hx-post="/projects/<%= project.id %>/delete" hx-target="#projects-grid" hx-swap="innerHTML"
+                hx-confirm="Delete this project and all of its files? This cannot be undone."
+                hx-on::after-request="if (event.detail.successful) document.getElementById('modal-root').innerHTML = ''">
+          <%- icon('trash', 14) %> Delete project
+        </button>
+      <% } %>
+    </div>
+
+    <h4 class="modal-section">Files</h4>
+    <% if (!fileCount) { %>
+      <p class="empty-note">No files stored in this project yet.</p>
+    <% } else { %>
+      <form hx-post="/projects/<%= project.id %>/files/delete" hx-target="#modal-root" hx-swap="innerHTML" hx-confirm="Delete the ticked files?">
+        <div class="file-tree">
+          <% groups.forEach(g => { %>
+            <% if (g.folder) { %><div class="file-folder"><%- icon('folder', 14) %> <%= g.folder %></div><% } %>
+            <% g.files.forEach(f => { %>
+              <div class="file-row">
+                <% if (editable) { %><input type="checkbox" name="ids" value="<%= f.id %>" aria-label="Select <%= f.name %>"><% } %>
+                <span class="file-row-icon"><%- icon('file', 15) %></span>
+                <span class="file-row-name" title="<%= f.rel_path || f.name %>"><%= f.name %></span>
+                <small class="muted"><%= formatSize(f.size) %></small>
+                <% if (fileKind(f) !== 'file') { %><a class="icon-btn icon-btn-sm" href="/files/<%= f.id %>" target="_blank" rel="noopener" title="Open"><%- icon('eye', 14) %></a><% } %>
+                <a class="icon-btn icon-btn-sm" href="/files/<%= f.id %>?dl=1" download title="Download"><%- icon('download', 14) %></a>
+              </div>
+            <% }) %>
+          <% }) %>
+        </div>
+        <% if (editable) { %>
+          <div class="modal-actions">
+            <button type="submit" class="btn btn-danger btn-sm"><%- icon('trash', 14) %> Delete ticked files</button>
+          </div>
+        <% } %>
+      </form>
+    <% } %>
+
+    <% if (editable) { %>
+      <h4 class="modal-section">Add files or a folder</h4>
+      <form action="/projects/<%= project.id %>/files" method="post" data-upload-form data-response="html" data-target="#modal-root" data-swap="innerHTML">
+        <%- include('./uploader', { folders: true }) %>
+        <button class="btn btn-primary btn-sm" type="submit"><%- icon('upload', 14) %> Upload to project</button>
+      </form>
+    <% } %>
+  </div>
+</div>

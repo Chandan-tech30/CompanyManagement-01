@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><%- include('./partials/head', { title }) %></head>
+<body>
+  <div class="auth-page employee-theme">
+    <div class="orb orb-a"></div>
+    <div class="orb orb-b"></div>
+    <div class="auth-card">
+      <div class="auth-brand"><%- icon('briefcase', 20) %><span>Almost there</span></div>
+      <% if (currentUser && currentUser.status === 'rejected') { %>
+        <p class="auth-hint">Hi <%= currentUser.full_name %> - your registration wasn't approved. Contact your company admin for more information.</p>
+      <% } else if (currentUser) { %>
+        <p class="auth-hint">Thanks, <%= currentUser.full_name %>. Your email is verified. An admin needs to approve your account before you can log in - you'll be able to sign in as soon as that happens.</p>
+      <% } else { %>
+        <p class="auth-hint">Your registration is pending. Check your email to verify, then wait for admin approval.</p>
+      <% } %>
+      <a class="btn btn-primary btn-block" href="/login/employee">Go to login</a>
+    </div>
+  </div>
+</body>
+</html>

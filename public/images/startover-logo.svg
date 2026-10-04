@@ -1,0 +1,12 @@
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="StartOver logo">
+  <defs>
+    <linearGradient id="badgeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#512da8"/>
+      <stop offset="100%" stop-color="#9c27b0"/>
+    </linearGradient>
+  </defs>
+  <circle cx="32" cy="32" r="30" fill="url(#badgeGrad)"/>
+  <g transform="translate(15,15) scale(1.458)" fill="#ffffff">
+    <path d="M12 2.75a9.25 9.25 0 1 0 4.737 17.197l-1.423-1.423A7.25 7.25 0 1 1 19.25 12h-2.5l3.25-3.25 3.25 3.25h-2.5A9.25 9.25 0 0 0 12 2.75z"/>
+  </g>
+</svg>

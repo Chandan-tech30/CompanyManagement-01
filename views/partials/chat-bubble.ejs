@@ -1,0 +1,36 @@
+<%
+  const deleted = Boolean(message.deleted_at);
+  const attachments = message.files || [];
+  const iso = new Date(message.created_at).toISOString();
+%>
+<div class="chat-bubble theirs<%= deleted ? ' is-deleted' : '' %>"
+     data-id="<%= message.id %>" data-sender="<%= senderKey %>" data-created="<%= iso %>"
+     data-file-ids="<%= attachments.map(f => f.id).join(',') %>">
+  <span class="bubble-check" aria-hidden="true"><%- icon('check', 12) %></span>
+  <div class="bubble-meta">
+    <span class="bubble-sender"><%= message.sender_role === 'admin' ? 'Admin' : (message.sender_name || 'Employee') %></span>
+    <time class="bubble-time" datetime="<%= iso %>"><%= timeAgo(message.created_at) %></time>
+  </div>
+  <% if (deleted) { %>
+    <p class="bubble-body bubble-deleted"><%- icon('ban', 13) %> This message was deleted</p>
+  <% } else { %>
+    <% if (message.body) { %><p class="bubble-body"><%= message.body %></p><% } %>
+    <% if (attachments.length) { %>
+      <div class="bubble-files">
+        <% attachments.forEach(f => { const kind = fileKind(f); %>
+          <% if (kind === 'image') { %>
+            <a class="bubble-media" href="/files/<%= f.id %>" target="_blank" rel="noopener" title="<%= f.name %>"><img src="/files/<%= f.id %>" alt="<%= f.name %>" loading="lazy"></a>
+          <% } else if (kind === 'video') { %>
+            <video class="bubble-media" controls preload="metadata" src="/files/<%= f.id %>"></video>
+          <% } else { %>
+            <a class="bubble-file" href="/files/<%= f.id %>?dl=1" download title="Download <%= f.name %>">
+              <span class="bubble-file-icon"><%- icon('file', 18) %></span>
+              <span class="bubble-file-text"><strong><%= f.name %></strong><small><%= formatSize(f.size) %></small></span>
+              <span class="bubble-file-dl"><%- icon('download', 15) %></span>
+            </a>
+          <% } %>
+        <% }) %>
+      </div>
+    <% } %>
+  <% } %>
+</div>

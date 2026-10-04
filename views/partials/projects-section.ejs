@@ -1,0 +1,59 @@
+<%#
+  Shared by the employee "Projects" tab and the admin "Personal" tab.
+  Locals: projects, editable, heading, sub (heading/sub optional)
+%>
+<div class="panel-header-row">
+  <div>
+    <h2><%= typeof heading !== 'undefined' ? heading : 'Projects' %></h2>
+    <p class="panel-sub"><%= typeof sub !== 'undefined' ? sub : 'Your own work: name, concept, details, and a file store for everything that belongs to it.' %></p>
+  </div>
+  <% if (editable) { %>
+    <div class="header-actions" x-data="{ open: false }" @upload-success="open = false">
+      <button type="button" class="btn btn-ghost" data-bulk-toggle="#projects-bulk" title="Select projects to delete"><%- icon('checkSquare', 14) %> Select</button>
+      <button type="button" class="btn btn-primary" @click="open = true"><%- icon('plus', 14) %> New project</button>
+      <div class="modal-backdrop" x-show="open" x-cloak @click.self="open = false" style="display:none">
+        <div class="modal modal-lg">
+          <h3>New project</h3>
+          <form action="/projects" method="post" data-upload-form data-response="html" data-target="#projects-grid">
+            <div class="form-group">
+              <label>Name</label>
+              <input type="text" name="name" required maxlength="150" placeholder="Project name">
+            </div>
+            <div class="form-group">
+              <label>Concept</label>
+              <input type="text" name="concept" maxlength="300" placeholder="One-line concept">
+            </div>
+            <div class="form-group">
+              <label>Details</label>
+              <textarea name="details" rows="3" placeholder="What is it, how far along, what's next"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Colour</label>
+              <div class="color-swatches">
+                <% ['#6d5ef5','#16c9b7','#2fd992','#f5a742','#f0555f','#e07be0'].forEach((c, i) => { %>
+                  <label class="swatch" style="background:<%= c %>"><input type="radio" name="color" value="<%= c %>" <%= i === 0 ? 'checked' : '' %>></label>
+                <% }) %>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Project files or folder <span class="muted">(optional, you can add more later)</span></label>
+              <%- include('./uploader', { folders: true }) %>
+            </div>
+            <button class="btn btn-primary btn-block" type="submit">Create project</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  <% } %>
+</div>
+
+<div id="projects-bulk" data-bulk data-url="/projects/delete" data-target="#projects-grid" data-swap="innerHTML" data-noun="project" data-verb="Delete">
+  <div class="bulk-bar" data-bulk-bar hidden>
+    <span data-bulk-count>0 selected</span>
+    <button type="button" class="btn btn-danger btn-sm" data-bulk-delete><%- icon('trash', 14) %> Delete selected</button>
+    <button type="button" class="btn btn-ghost btn-sm" data-bulk-cancel>Cancel</button>
+  </div>
+  <div class="project-grid" id="projects-grid" hx-get="/projects/grid" hx-trigger="projects-changed from:body" hx-swap="innerHTML">
+    <%- include('./projects-grid', { projects, editable }) %>
+  </div>
+</div>

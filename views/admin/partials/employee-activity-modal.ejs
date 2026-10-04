@@ -1,0 +1,9 @@
+<div class="modal-backdrop" data-modal>
+  <div class="modal modal-lg activity-modal" role="dialog" aria-modal="true" aria-label="Daily activity of <%= employee.full_name %>">
+    <div class="modal-head">
+      <h3><%- icon('trending', 18) %> Activity &middot; <%= employee.full_name %></h3>
+      <button type="button" class="icon-btn" data-close-modal aria-label="Close"><%- icon('x', 18) %></button>
+    </div>
+    <%- include('../../partials/activity-chart', { activity, exportUrl, canPickRange, rangeUrl, rangeTarget }) %>
+  </div>
+</div>

@@ -1,0 +1,34 @@
+<div class="panel-header">
+  <h2>Registrations</h2>
+  <p class="panel-sub">
+    <%= pending.length %> waiting on your approval
+    <% if (unverifiedCount) { %> &middot; <%= unverifiedCount %> haven't verified their email yet<% } %>
+  </p>
+</div>
+
+<div class="card">
+  <% if (!pending.length) { %>
+    <p class="empty-note">No registrations waiting. New signups will appear here once they verify their email.</p>
+  <% } else { %>
+  <table class="data-table">
+    <% pending.forEach(p => { %>
+      <tr>
+        <td class="cell-main">
+          <strong><%= p.full_name %></strong>
+          <span class="muted"><%= p.email %></span>
+        </td>
+        <td class="muted"><%= p.phone %></td>
+        <td class="muted"><%= timeAgo(p.created_at) %></td>
+        <td class="cell-actions">
+          <form hx-post="/admin/registrations/<%= p.id %>/approve" hx-target="#main-panel" hx-swap="innerHTML">
+            <button class="btn btn-success btn-sm" type="submit"><%- icon('check', 14) %> Approve</button>
+          </form>
+          <form hx-post="/admin/registrations/<%= p.id %>/reject" hx-target="#main-panel" hx-swap="innerHTML" hx-confirm="Reject this registration?">
+            <button class="btn btn-danger btn-sm" type="submit">Reject</button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+  </table>
+  <% } %>
+</div>

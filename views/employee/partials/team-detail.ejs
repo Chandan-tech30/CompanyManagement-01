@@ -1,0 +1,22 @@
+<a class="back-link" href="/employee/tab/teams" hx-get="/employee/tab/teams" hx-target="#main-panel" hx-swap="innerHTML" hx-push-url="true">
+  <%- icon('arrowLeft', 16) %> All teams
+</a>
+
+<div id="team-root" data-team-id="<%= team.id %>" data-role="employee">
+  <div class="panel-header">
+    <h2><%= team.name %></h2>
+    <% if (team.description) { %><p class="panel-sub"><%= team.description %></p><% } %>
+    <p class="member-strip"><%- icon('users', 14) %> <%= members.map(m => m.full_name).join(', ') %></p>
+  </div>
+
+  <div class="work-layout">
+    <div class="work-col">
+      <h3 class="col-title">Assignments</h3>
+      <%- include('./team-assignments') %>
+    </div>
+    <div class="work-col">
+      <h3 class="col-title">Team chat</h3>
+      <%- include('../../partials/chat-panel', { chat }) %>
+    </div>
+  </div>
+</div>

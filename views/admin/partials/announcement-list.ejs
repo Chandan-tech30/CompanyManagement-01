@@ -1,0 +1,6 @@
+<% if (!announcements.length) { %>
+  <p class="empty-note">No announcements yet.</p>
+<% } %>
+<% announcements.forEach(a => { %>
+  <%- include('../../partials/announcement-card', { a, isAdmin: true }) %>
+<% }) %>

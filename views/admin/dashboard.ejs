@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" <%- htmlAttrs(user) %>>
+<head><%- include('../partials/head', { title }) %></head>
+<body class="theme-admin">
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="topbar-brand">
+        <% if (company.logo_path) { %>
+          <img src="<%= company.logo_path %>" class="company-logo" alt="<%= company.name %> logo">
+        <% } else { %>
+          <span class="company-logo-placeholder"><%- icon('building', 20) %></span>
+        <% } %>
+        <span class="company-name"><%= company.name %></span>
+        <span class="admin-pill">Admin</span>
+      </div>
+
+      <div class="global-search" x-data="{ open: false }" @click.outside="open = false">
+        <span class="global-search-icon"><%- icon('search', 16) %></span>
+        <input type="text" name="q" placeholder="Search employees by name" autocomplete="off" aria-label="Search employees by name"
+               hx-get="/admin/search" hx-trigger="input changed delay:250ms" hx-target="#search-results" hx-swap="innerHTML"
+               @focus="open = true" @input="open = true" @keydown.escape="open = false">
+        <div id="search-results" class="search-results" x-show="open" x-cloak></div>
+      </div>
+
+      <div class="topbar-user">
+        <div class="avatar avatar-sm">
+          <% if (user.avatar_path) { %><img src="<%= user.avatar_path %>" alt=""><% } else { %><%- icon('user', 14) %><% } %>
+        </div>
+        <span class="topbar-user-name"><%= user.full_name %></span>
+        <button type="button" class="icon-btn" title="Settings" aria-label="Settings"
+                hx-get="/settings" hx-target="#modal-root" hx-swap="innerHTML"><%- icon('settings', 18) %></button>
+        <a href="/logout" class="icon-btn" title="Log out" aria-label="Log out"><%- icon('logout', 18) %></a>
+      </div>
+    </header>
+
+    <div class="app-body">
+      <nav class="sidebar" id="sidebar">
+        <div class="sidebar-head">
+          <span class="sidebar-title">Menu</span>
+          <button type="button" class="icon-btn icon-btn-sm" data-sidebar-toggle title="Hide sidebar" aria-label="Hide sidebar"><%- icon('dots', 16) %></button>
+        </div>
+        <a class="nav-link <%= activeTab === 'registrations' ? 'active' : '' %>" href="/admin/tab/registrations" hx-get="/admin/tab/registrations" hx-target="#main-panel" hx-swap="innerHTML" hx-push-url="true">
+          <%- icon('inbox') %><span>Registrations</span>
+          <% if (nav.registrations) { %><span class="nav-badge"><%= nav.registrations %></span><% } %>
+        </a>
+        <a class="nav-link <%= activeTab === 'employees' ? 'active' : '' %>" href="/admin/tab/employees" hx-get="/admin/tab/employees" hx-target="#main-panel" hx-swap="innerHTML" hx-push-url="true">
+          <%- icon('users') %><span>Employees</span>
+        </a>
+        <a class="nav-link <%= activeTab === 'teams' ? 'active' : '' %>" href="/admin/tab/teams" hx-get="/admin/tab/teams" hx-target="#main-panel" hx-swap="innerHTML" hx-push-url="true">
+          <%- icon('team') %><span>Teams</span>
+          <% if (nav.team_reviews) { %><span class="nav-badge" title="Submissions waiting for review"><%= nav.team_reviews %></span><% } %>
+        </a>
+        <a class="nav-link <%= activeTab === 'announcements' ? 'active' : '' %>" href="/admin/tab/announcements" hx-get="/admin/tab/announcements" hx-target="#main-panel" hx-swap="innerHTML" hx-push-url="true">
+          <%- icon('megaphone') %><span>Announcement</span>
+        </a>
+        <a class="nav-link <%= activeTab === 'leave' ? 'active' : '' %>" href="/admin/tab/leave" hx-get="/admin/tab/leave" hx-target="#main-panel" hx-swap="innerHTML" hx-push-url="true">
+          <%- icon('door') %><span>Leave requests</span>
+          <% if (nav.leave) { %><span class="nav-badge"><%= nav.leave %></span><% } %>
+        </a>
+      </nav>
+      <button type="button" class="sidebar-reopen" data-sidebar-toggle title="Show sidebar" aria-label="Show sidebar"><%- icon('dots', 16) %></button>
+
+      <main class="main-panel" id="main-panel">
+        <%- include(`./partials/${bodyPartial}`, bodyLocals) %>
+      </main>
+    </div>
+
+    <nav class="bottom-tabbar">
+      <a class="bottom-tab <%= activeTab === 'company' ? 'active' : '' %>" href="/admin/tab/company" hx-get="/admin/tab/company" hx-target="#main-panel" hx-swap="innerHTML" hx-push-url="true">
+        <%- icon('home', 16) %><span>Home</span>
+      </a>
+      <a class="bottom-tab <%= activeTab === 'growth' ? 'active' : '' %>" href="/admin/tab/growth" hx-get="/admin/tab/growth" hx-target="#main-panel" hx-swap="innerHTML" hx-push-url="true">
+        <%- icon('trending', 16) %><span>Growth</span>
+      </a>
+      <a class="bottom-tab <%= activeTab === 'projects' ? 'active' : '' %>" href="/admin/tab/projects" hx-get="/admin/tab/projects" hx-target="#main-panel" hx-swap="innerHTML" hx-push-url="true">
+        <%- icon('folder', 16) %><span>Projects</span>
+      </a>
+      <a class="bottom-tab <%= activeTab === 'assign-role' ? 'active' : '' %>" href="/admin/tab/assign-role" hx-get="/admin/tab/assign-role" hx-target="#main-panel" hx-swap="innerHTML" hx-push-url="true">
+        <%- icon('briefcase', 16) %><span>Assign role</span>
+      </a>
+      <a class="bottom-tab <%= activeTab === 'personal' ? 'active' : '' %>" href="/admin/tab/personal" hx-get="/admin/tab/personal" hx-target="#main-panel" hx-swap="innerHTML" hx-push-url="true">
+        <%- icon('sliders', 16) %><span>Personal</span>
+      </a>
+    </nav>
+  </div>
+
+  <div id="modal-root"></div>
+  <div id="toast-root" aria-live="polite"></div>
+  <script src="/js/uploader.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/chat.js"></script>
+</body>
+</html>

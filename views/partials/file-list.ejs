@@ -1,0 +1,15 @@
+<% if (files && files.length) { %>
+<div class="file-list">
+  <details>
+    <summary><%- icon('clip', 14) %> <%= files.length %> file<%= files.length === 1 ? '' : 's' %> <span class="muted">&middot; <%= formatSize(files.reduce((s, f) => s + (f.size || 0), 0)) %></span></summary>
+    <ul>
+      <% files.forEach(f => { %>
+        <li><a href="/files/<%= f.id %>?dl=1" download><%= f.rel_path || f.name %></a> <small class="muted"><%= formatSize(f.size) %></small></li>
+      <% }) %>
+    </ul>
+  </details>
+  <% if (typeof zipUrl !== 'undefined' && zipUrl && files.length > 1) { %>
+    <a class="btn btn-ghost btn-sm" href="<%= zipUrl %>"><%- icon('download', 13) %> Download all (.zip)</a>
+  <% } %>
+</div>
+<% } %>

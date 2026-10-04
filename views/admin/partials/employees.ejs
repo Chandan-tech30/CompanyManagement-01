@@ -1,0 +1,22 @@
+<div class="panel-header">
+  <h2>Employees</h2>
+  <p class="panel-sub"><%= employees.length %> on the team</p>
+</div>
+
+<div class="employee-roster">
+  <% if (!employees.length) { %>
+    <p class="empty-note">No approved employees yet. Check the Registrations tab.</p>
+  <% } %>
+  <% employees.forEach(e => { %>
+    <a class="roster-card" href="/admin/employees/<%= e.id %>" hx-get="/admin/employees/<%= e.id %>" hx-target="#main-panel" hx-swap="innerHTML" hx-push-url="true">
+      <div class="avatar avatar-md">
+        <% if (e.avatar_path) { %><img src="<%= e.avatar_path %>" alt=""><% } else { %><%- icon('user', 18) %><% } %>
+      </div>
+      <div class="roster-card-info">
+        <strong><%= e.full_name %></strong>
+        <span class="muted"><%= e.job_role %></span>
+      </div>
+      <% if (e.admin_unread) { %><span class="nav-dot" title="New activity"></span><% } %>
+    </a>
+  <% }) %>
+</div>

@@ -1,0 +1,42 @@
+<div id="team-assignments" class="team-assignments">
+  <% if (!assignments.length) { %><p class="empty-note">No assignments from the admin yet.</p><% } %>
+  <% assignments.forEach(a => { const dl = a.deadline ? formatDeadline(a.deadline) : null; const last = a.latest; %>
+    <div class="task-card">
+      <div class="task-card-head">
+        <h4><%= a.title %></h4>
+        <% if (last) { %><span class="badge badge-status-<%= last.status === 'submitted' ? 'submitted' : (last.status === 'approved' ? 'approved' : 'assigned') %>"><%= last.status === 'rejected' ? 'sent back' : last.status %></span><% } else { %><span class="badge badge-status-assigned">to do</span><% } %>
+      </div>
+      <% if (a.description) { %><p class="task-desc"><%= a.description %></p><% } %>
+      <% if (dl) { %><deadline-countdown datetime="<%= dl.iso %>" class="badge badge-<%= dl.cls %>"><%= dl.label %></deadline-countdown><% } %>
+
+      <% if (last) { %>
+        <div class="task-submission">
+          <% if (last.note) { %><p class="task-note"><%= last.note %></p><% } %>
+          <%- include('../../partials/file-list', { files: last.files, zipUrl: `/files/zip/team_submission/${last.id}` }) %>
+          <% if (last.admin_feedback) { %><p class="muted">Admin: <%= last.admin_feedback %></p><% } %>
+        </div>
+      <% } %>
+
+      <% if (last && last.status === 'submitted') { %>
+        <p class="muted"><%- icon('refresh', 14) %> Sent to the admin. Waiting for review.</p>
+      <% } %>
+      <% if (last && last.status === 'approved') { %>
+        <p class="task-approved"><%- icon('check', 14) %> Approved by the admin</p>
+        <button type="button" class="btn btn-ghost btn-sm" hx-post="/employee/teams/<%= team.id %>/assignments/<%= a.id %>/hide" hx-target="#team-assignments" hx-swap="outerHTML"
+                hx-confirm="Remove this finished assignment from your list? The admin keeps their records."><%- icon('trash', 14) %> Remove from my list</button>
+      <% } %>
+
+      <% if (!last || last.status === 'rejected') { %>
+        <form class="submit-form" action="/employee/teams/<%= team.id %>/assignments/<%= a.id %>/submit" method="post" data-upload-form data-response="html" data-target="#team-assignments" data-swap="outerHTML">
+          <% if (last) { %><p class="muted">The admin sent this back. Fix it and submit again.</p><% } %>
+          <textarea name="note" rows="2" placeholder="Add a note for the admin (optional)"></textarea>
+          <%- include('../../partials/uploader', { folders: true }) %>
+          <div class="submit-form-row">
+            <span class="field-hint">Files or a whole folder go straight to the admin.</span>
+            <button class="btn btn-primary btn-sm" type="submit"><%- icon('send', 14) %> Submit to admin</button>
+          </div>
+        </form>
+      <% } %>
+    </div>
+  <% }) %>
+</div>

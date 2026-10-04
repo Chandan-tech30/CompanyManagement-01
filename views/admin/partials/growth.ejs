@@ -1,0 +1,66 @@
+<div class="panel-header">
+  <h2>Company growth</h2>
+  <p class="panel-sub">Track whatever growth metric matters to you - revenue, headcount, clients.</p>
+</div>
+
+<div class="card chart-card">
+  <canvas id="growthChart" height="90" style="<%= points.length ? '' : 'display:none' %>"></canvas>
+  <% if (!points.length) { %>
+    <p class="empty-note">No data points yet - add your first one below and the chart will appear here.</p>
+  <% } %>
+</div>
+
+<div class="card">
+  <h3>Add a data point</h3>
+  <form hx-post="/admin/growth" hx-target="#main-panel" hx-swap="innerHTML" class="growth-form">
+    <input type="text" name="label" placeholder="e.g. Q1 2026" required>
+    <input type="number" name="value" step="any" placeholder="Value" required>
+    <button class="btn btn-primary btn-sm" type="submit"><%- icon('plus', 14) %> Add</button>
+  </form>
+
+  <% if (!points.length) { %>
+    <p class="empty-note">No data points added yet.</p>
+  <% } else { %>
+    <table class="data-table">
+      <% points.forEach(p => { %>
+        <tr>
+          <td><%= p.label %></td>
+          <td class="muted"><%= p.value %></td>
+          <td class="cell-actions">
+            <form hx-post="/admin/growth/<%= p.id %>/delete" hx-target="#main-panel" hx-swap="innerHTML" hx-confirm="Remove this point?">
+              <button class="btn btn-ghost btn-sm" type="submit"><%- icon('trash', 14) %></button>
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+    </table>
+  <% } %>
+</div>
+
+<script>
+(function () {
+  const ctx = document.getElementById('growthChart');
+  const labels = <%- JSON.stringify(points.map(p => p.label)) %>;
+  if (!ctx || !window.Chart || labels.length === 0) return;
+  if (ctx._chartInstance) ctx._chartInstance.destroy();
+  const values = <%- JSON.stringify(points.map(p => p.value)) %>;
+  ctx._chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Growth', data: values, borderColor: '#6d5ef5', backgroundColor: 'rgba(109,94,245,0.15)',
+        tension: 0.35, fill: true, pointBackgroundColor: '#6d5ef5', pointRadius: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { ticks: { color: '#9aa4c0' }, grid: { color: 'rgba(154,164,192,0.12)' } },
+        x: { ticks: { color: '#9aa4c0' }, grid: { display: false } }
+      }
+    }
+  });
+})();
+</script>

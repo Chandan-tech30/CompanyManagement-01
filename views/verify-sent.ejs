@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><%- include('./partials/head', { title }) %></head>
+<body>
+  <div class="auth-page employee-theme">
+    <div class="orb orb-a"></div>
+    <div class="orb orb-b"></div>
+    <div class="auth-card">
+      <div class="auth-brand"><%- icon('message', 20) %><span>Check your email</span></div>
+      <p class="auth-hint">We sent a verification link to <strong><%= email %></strong>. Click it to confirm your address, then wait for admin approval before logging in.</p>
+
+      <% if (devLink) { %>
+        <div class="dev-callout">
+          <strong>Dev mode</strong> - no SMTP is configured, so here's the link directly:
+          <a href="<%= devLink %>"><%= devLink %></a>
+        </div>
+      <% } %>
+
+      <form method="POST" action="/resend-verification" class="auth-form">
+        <input type="hidden" name="email" value="<%= email %>">
+        <button class="btn btn-ghost btn-block" type="submit">Resend verification email</button>
+      </form>
+      <p class="auth-switch"><a href="/login/employee">Back to login</a></p>
+    </div>
+  </div>
+</body>
+</html>

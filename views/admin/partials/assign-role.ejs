@@ -1,0 +1,30 @@
+<div class="panel-header">
+  <h2>Assign role</h2>
+  <p class="panel-sub">Give each employee the role they work in. They see it on their Roles tab straight away.</p>
+</div>
+
+<% if (typeof justAssigned !== 'undefined' && justAssigned) { %><div class="inline-success"><%- icon('check', 14) %> Role assigned</div><% } %>
+
+<div class="card">
+  <h3>Assign employee roles</h3>
+  <form hx-post="/admin/roles" hx-target="#main-panel" hx-swap="innerHTML" class="role-form">
+    <select name="employee_id" required>
+      <option value="" disabled selected>Choose an employee</option>
+      <% employees.forEach(e => { %>
+        <option value="<%= e.id %>"><%= e.full_name %> (currently: <%= e.job_role %>)</option>
+      <% }) %>
+    </select>
+    <input type="text" name="job_role" placeholder="Role title, e.g. Frontend Engineer" required maxlength="100">
+    <button class="btn btn-primary btn-sm" type="submit">Assign</button>
+  </form>
+
+  <% if (!employees.length) { %>
+    <p class="empty-note">No approved employees yet. Once you approve someone from Registrations, they will appear here.</p>
+  <% } else { %>
+    <table class="data-table">
+      <% employees.forEach(e => { %>
+        <tr><td><%= e.full_name %></td><td class="muted"><%= e.job_role %></td></tr>
+      <% }) %>
+    </table>
+  <% } %>
+</div>

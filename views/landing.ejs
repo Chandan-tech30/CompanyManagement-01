@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><%- include('./partials/head', { title }) %></head>
+<body>
+  <div class="auth-page brand-theme">
+    <div class="orb-field" id="orbField">
+      <div class="orb orb-a"></div>
+      <div class="orb orb-b"></div>
+    </div>
+    <div class="landing-card">
+      <%- include('./partials/brand-hero', { heroSize: 56 }) %>
+      <p class="landing-sub">Where the team gets things done. Employees track their work and chat directly with admin; admin manages the whole team from one place.</p>
+      <div class="landing-actions">
+        <a class="portal-choice employee" href="/login/employee">
+          <span class="portal-choice-icon"><%- icon('user', 24) %></span>
+          <span class="portal-choice-text">
+            <strong>Employee portal</strong>
+            <small>Log in to your dashboard</small>
+          </span>
+        </a>
+        <a class="portal-choice admin" href="/login/admin">
+          <span class="portal-choice-icon"><%- icon('sliders', 24) %></span>
+          <span class="portal-choice-text">
+            <strong>Admin portal</strong>
+            <small>Manage the company</small>
+          </span>
+        </a>
+      </div>
+      <p class="landing-register">New here? <a href="/register">Create an employee account</a></p>
+    </div>
+  </div>
+</body>
+</html>

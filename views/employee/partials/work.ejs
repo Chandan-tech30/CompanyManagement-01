@@ -1,0 +1,19 @@
+<%#
+  Work page: the chat box is FIXED on the right and starts level with the "Work" heading.
+  Only the assigned-work list scrolls (it grows as more work is assigned).
+%>
+<div class="work-page">
+  <section class="work-pane work-pane-tasks">
+    <div class="panel-header">
+      <h2>Work</h2>
+      <p class="panel-sub">Everything assigned to you, and a direct line to admin.</p>
+    </div>
+    <h3 class="col-title">Assigned work</h3>
+    <div class="work-pane-body">
+      <%- include('../../partials/tasks-panel', { tasks, viewerRole, employeeId, employeeName, canAssign, tasksRefreshUrl }) %>
+    </div>
+  </section>
+  <section class="work-pane work-pane-chat">
+    <%- include('../../partials/chat-panel', { chat, chatTitle: 'Chat with admin' }) %>
+  </section>
+</div>

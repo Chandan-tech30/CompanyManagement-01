@@ -1,0 +1,64 @@
+<div class="chat-panel" id="chat-panel"
+     data-thread-id="<%= chat.threadId %>" data-my-key="<%= chat.myKey %>" data-is-admin="<%= chat.isAdmin ? 1 : 0 %>"
+     data-can-post="<%= chat.canPost ? 1 : 0 %>" data-has-more="<%= chat.hasMore ? 1 : 0 %>"
+     data-oldest-id="<%= chat.messages.length ? chat.messages[0].id : '' %>">
+
+  <% if (typeof chatTitle !== 'undefined' && chatTitle) { %>
+    <div class="chat-titlebar">
+      <%- icon('message', 16) %> <span><%= chatTitle %></span>
+      <span class="grow"></span>
+      <button type="button" class="icon-btn icon-btn-sm chat-ctrl-minimize" data-chat-minimize title="Minimize" aria-label="Minimize chat">
+        <span class="chat-ctrl-icon"><%- icon('chevronDown', 15) %></span>
+        <span class="chat-ctrl-icon alt"><%- icon('chevronUp', 15) %></span>
+      </button>
+      <button type="button" class="icon-btn icon-btn-sm chat-ctrl-maximize" data-chat-maximize title="Maximize" aria-label="Maximize chat">
+        <span class="chat-ctrl-icon"><%- icon('maximize', 14) %></span>
+        <span class="chat-ctrl-icon alt"><%- icon('compress', 14) %></span>
+      </button>
+    </div>
+  <% } %>
+
+  <div class="chat-status" data-chat-status hidden><span class="chat-status-dot"></span><span data-chat-status-text>Reconnecting…</span></div>
+
+  <div class="chat-selectbar" data-chat-selectbar hidden>
+    <button type="button" class="icon-btn icon-btn-sm" data-chat-cancel title="Cancel selection" aria-label="Cancel selection"><%- icon('x', 16) %></button>
+    <span class="chat-selectcount" data-chat-count>0 selected</span>
+    <span class="grow"></span>
+    <button type="button" class="btn btn-ghost btn-sm" data-chat-download title="Download attachments of the selected messages"><%- icon('download', 14) %> Download</button>
+    <button type="button" class="btn btn-danger btn-sm" data-chat-delete><%- icon('trash', 14) %> Delete</button>
+  </div>
+
+  <div class="chat-log" id="chat-log">
+    <button type="button" class="chat-older" data-chat-older <%= chat.hasMore ? '' : 'hidden' %>>Load earlier messages</button>
+    <% if (!chat.messages.length) { %><p class="chat-empty">No messages yet. Say hello.</p><% } %>
+    <% chat.messages.forEach(message => { %>
+      <%- include('./chat-bubble', { message, senderKey: chat.keyOf(message) }) %>
+    <% }) %>
+  </div>
+
+  <% if (chat.canPost) { %>
+    <form id="chat-form" class="chat-composer" data-uploader data-max-mb="<%= typeof MAX_UPLOAD_MB !== 'undefined' ? MAX_UPLOAD_MB : 25 %>" autocomplete="off">
+      <div class="composer-previews" data-previews hidden></div>
+      <div class="composer-row">
+        <button type="button" class="chat-attach" data-pick="files" title="Attach files" aria-label="Attach files"><%- icon('clip', 18) %></button>
+        <textarea name="body" rows="1" maxlength="5000" placeholder="Write a message..." aria-label="Message"></textarea>
+        <button type="submit" class="btn btn-primary btn-sm chat-send" title="Send" aria-label="Send"><%- icon('send', 16) %></button>
+      </div>
+      <input type="file" multiple hidden data-input="files">
+    </form>
+  <% } else { %>
+    <div class="chat-readonly"><%- icon('ban', 14) %> <%= chat.readOnlyNote %></div>
+  <% } %>
+
+  <div class="chat-dialog" data-chat-dialog hidden>
+    <div class="chat-dialog-card" role="dialog" aria-modal="true" aria-labelledby="chat-dialog-title">
+      <h4 id="chat-dialog-title" data-dialog-title>Delete messages?</h4>
+      <p class="muted" data-dialog-text></p>
+      <div class="chat-dialog-actions">
+        <button type="button" class="btn btn-danger btn-sm" data-do-delete="everyone">Delete for everyone</button>
+        <button type="button" class="btn btn-danger btn-sm" data-do-delete="me">Delete for me</button>
+        <button type="button" class="btn btn-ghost btn-sm" data-dialog-cancel>Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>

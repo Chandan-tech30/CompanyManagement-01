@@ -1,0 +1,50 @@
+<div id="team-assignments" class="team-assignments">
+  <form class="assign-form" hx-post="/admin/teams/<%= team.id %>/assignments" hx-target="#team-assignments" hx-swap="outerHTML">
+    <h4>Give the team an assignment</h4>
+    <input type="text" name="title" placeholder="Assignment title" required maxlength="200">
+    <textarea name="description" rows="3" placeholder="What should the team do?"></textarea>
+    <div class="assign-form-row">
+      <label class="assign-deadline-label">Deadline <input type="datetime-local" name="deadline"></label>
+      <button class="btn btn-primary btn-sm" type="submit"><%- icon('plus', 14) %> Assign</button>
+    </div>
+  </form>
+
+  <% if (!assignments.length) { %><p class="empty-note">No assignments yet.</p><% } %>
+  <% assignments.forEach(a => { const dl = a.deadline ? formatDeadline(a.deadline) : null; %>
+    <div class="task-card">
+      <div class="task-card-head">
+        <h4><%= a.title %></h4>
+        <button type="button" class="icon-btn icon-btn-sm" hx-post="/admin/teams/<%= team.id %>/assignments/<%= a.id %>/delete" hx-target="#team-assignments" hx-swap="outerHTML"
+                hx-confirm="Delete this assignment and every file submitted for it?" title="Delete assignment" aria-label="Delete assignment"><%- icon('trash', 14) %></button>
+      </div>
+      <% if (a.description) { %><p class="task-desc"><%= a.description %></p><% } %>
+      <% if (dl) { %><deadline-countdown datetime="<%= dl.iso %>" class="badge badge-<%= dl.cls %>"><%= dl.label %></deadline-countdown><% } %>
+
+      <p class="muted submission-count"><%= new Set(a.submissions.map(s => s.member_id)).size %> of <%= members.length %> members submitted</p>
+
+      <% a.submissions.forEach(s => { %>
+        <div class="submission">
+          <div class="submission-top">
+            <strong><%= s.full_name %></strong>
+            <span class="badge badge-status-<%= s.status === 'submitted' ? 'submitted' : (s.status === 'approved' ? 'approved' : 'assigned') %>"><%= s.status === 'rejected' ? 'sent back' : s.status %></span>
+            <small class="muted"><%= timeAgo(s.submitted_at) %></small>
+          </div>
+          <% if (s.note) { %><p class="task-note"><%= s.note %></p><% } %>
+          <%- include('../../partials/file-list', { files: s.files, zipUrl: `/files/zip/team_submission/${s.id}` }) %>
+          <% if (s.admin_feedback) { %><p class="muted">Your feedback: <%= s.admin_feedback %></p><% } %>
+          <% if (s.status === 'submitted') { %>
+            <form class="leave-decide" hx-post="/admin/teams/<%= team.id %>/submissions/<%= s.id %>/review" hx-target="#team-assignments" hx-swap="outerHTML">
+              <input type="text" name="feedback" maxlength="2000" placeholder="Feedback (optional)">
+              <button class="btn btn-success btn-sm" type="submit" name="decision" value="approve"><%- icon('check', 14) %> Approve</button>
+              <button class="btn btn-ghost btn-sm" type="submit" name="decision" value="reject">Send back</button>
+            </form>
+          <% } %>
+        </div>
+      <% }) %>
+
+      <% if (a.notSubmitted.length) { %>
+        <p class="muted waiting-for">Waiting for: <%= a.notSubmitted.map(m => m.full_name).join(', ') %></p>
+      <% } %>
+    </div>
+  <% }) %>
+</div>

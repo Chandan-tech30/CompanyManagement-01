@@ -1,0 +1,55 @@
+<div id="team-head" class="card team-head">
+  <form hx-post="/admin/teams/<%= team.id %>/settings" hx-target="#team-head" hx-swap="outerHTML" class="team-settings">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="th-name">Team name</label>
+        <input id="th-name" type="text" name="name" value="<%= team.name %>" required maxlength="120">
+      </div>
+      <div class="form-group">
+        <label for="th-mode">Who can write in the chat</label>
+        <select id="th-mode" name="chat_mode">
+          <option value="all" <%= team.chat_mode === 'all' ? 'selected' : '' %>>Every member</option>
+          <option value="admin_only" <%= team.chat_mode === 'admin_only' ? 'selected' : '' %>>Only admin</option>
+          <option value="selected" <%= team.chat_mode === 'selected' ? 'selected' : '' %>>Selected members</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="th-desc">Description</label>
+      <input id="th-desc" type="text" name="description" value="<%= team.description %>" maxlength="1000" placeholder="What is this team for?">
+    </div>
+    <button class="btn btn-primary btn-sm" type="submit">Save settings</button>
+  </form>
+
+  <h4 class="modal-section">Members (<%= members.length %>)</h4>
+  <% if (!members.length) { %><p class="empty-note">No members yet. Add someone below.</p><% } %>
+  <ul class="member-list">
+    <% members.forEach(m => { %>
+      <li>
+        <span class="avatar avatar-sm"><% if (m.avatar_path) { %><img src="<%= m.avatar_path %>" alt=""><% } else { %><%- icon('user', 14) %><% } %></span>
+        <span class="member-name"><strong><%= m.full_name %></strong> <small class="muted"><%= m.job_role %></small></span>
+        <% if (team.chat_mode === 'selected') { %>
+          <button type="button" class="btn btn-sm <%= m.can_post ? 'btn-success' : 'btn-ghost' %>" hx-post="/admin/teams/<%= team.id %>/members/<%= m.id %>/post" hx-target="#team-head" hx-swap="outerHTML"
+                  title="Allow or stop this member from writing in the chat"><%= m.can_post ? 'Can write' : 'Read only' %></button>
+        <% } %>
+        <button type="button" class="icon-btn icon-btn-sm" hx-post="/admin/teams/<%= team.id %>/members/<%= m.id %>/remove" hx-target="#team-head" hx-swap="outerHTML"
+                hx-confirm="Remove <%= m.full_name %> from this team?" title="Remove from team" aria-label="Remove <%= m.full_name %>"><%- icon('x', 14) %></button>
+      </li>
+    <% }) %>
+  </ul>
+
+  <% if (candidates.length) { %>
+    <form class="member-add" hx-post="/admin/teams/<%= team.id %>/members" hx-target="#team-head" hx-swap="outerHTML">
+      <select name="user_id" required aria-label="Add a member">
+        <option value="" disabled selected>Add a member</option>
+        <% candidates.forEach(c => { %><option value="<%= c.id %>"><%= c.full_name %> (<%= c.job_role %>)</option><% }) %>
+      </select>
+      <button class="btn btn-primary btn-sm" type="submit"><%- icon('plus', 14) %> Add</button>
+    </form>
+  <% } %>
+
+  <div class="team-danger">
+    <button type="button" class="btn btn-danger btn-sm" hx-post="/admin/teams/<%= team.id %>/delete" hx-target="body" hx-swap="none"
+            hx-confirm="Delete this team, its chat, assignments and every submitted file? This cannot be undone."><%- icon('trash', 14) %> Delete team</button>
+  </div>
+</div>

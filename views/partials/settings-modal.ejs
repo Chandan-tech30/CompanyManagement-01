@@ -1,0 +1,125 @@
+<div class="modal-backdrop" data-modal>
+  <div class="modal modal-lg settings-modal" x-data="{ tab: '<%= tab %>' }">
+    <div class="modal-head">
+      <h3><%- icon('settings', 18) %> Settings</h3>
+      <button type="button" class="icon-btn" data-close-modal aria-label="Close"><%- icon('x', 18) %></button>
+    </div>
+
+    <div class="tab-row" role="tablist">
+      <button type="button" class="tab-btn" :class="{ active: tab === 'account' }" @click="tab = 'account'"><%- icon('user', 14) %> Account</button>
+      <button type="button" class="tab-btn" :class="{ active: tab === 'appearance' }" @click="tab = 'appearance'">&#127912; Appearance</button>
+      <% if (me.role === 'employee') { %>
+        <button type="button" class="tab-btn" :class="{ active: tab === 'leave' }" @click="tab = 'leave'">&#128221; Leave Policies</button>
+      <% } %>
+    </div>
+
+    <% if (ok) { %><div class="inline-success"><%- icon('check', 14) %> <%= ok %></div><% } %>
+    <% if (error) { %><div class="inline-error"><%= error %></div><% } %>
+
+    <%# ---------------- Account ---------------- %>
+    <section x-show="tab === 'account'" <% if (tab !== 'account') { %>style="display:none"<% } %>>
+      <dl class="account-facts">
+        <div><dt>Name</dt><dd><%= me.full_name %></dd></div>
+        <div><dt>Login e-mail</dt><dd><%= me.email %></dd></div>
+        <div><dt>Role</dt><dd><%= me.role === 'admin' ? 'Administrator' : me.job_role %></dd></div>
+      </dl>
+
+      <h4 class="modal-section"><%- icon('lock', 14) %> Change password</h4>
+      <form hx-post="/settings/password" hx-target="#modal-root" hx-swap="innerHTML" autocomplete="off">
+        <div class="form-group">
+          <label for="cur-pw">Current password</label>
+          <input id="cur-pw" type="password" name="current_password" required autocomplete="current-password">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="new-pw">New password</label>
+            <input id="new-pw" type="password" name="new_password" required minlength="8" autocomplete="new-password">
+          </div>
+          <div class="form-group">
+            <label for="conf-pw">Confirm new password</label>
+            <input id="conf-pw" type="password" name="confirm_password" required minlength="8" autocomplete="new-password">
+          </div>
+        </div>
+        <p class="field-hint">At least 8 characters. Changing it signs you out on your other devices.</p>
+        <button class="btn btn-primary btn-sm" type="submit">Change password</button>
+      </form>
+    </section>
+
+    <%# ---------------- Appearance ---------------- %>
+    <section x-show="tab === 'appearance'" <% if (tab !== 'appearance') { %>style="display:none"<% } %> class="appearance-panel">
+      <p class="muted">Changes apply instantly and are remembered for your account on every device.</p>
+
+      <fieldset class="opt-group">
+        <legend>Theme</legend>
+        <% [['light', 'Light'], ['dark', 'Dark'], ['system', 'System']].forEach(([v, label]) => { %>
+          <label class="opt"><input type="radio" name="theme" value="<%= v %>" data-setting="theme" <%= ui.theme === v ? 'checked' : '' %>><span><%= label %></span></label>
+        <% }) %>
+      </fieldset>
+
+      <fieldset class="opt-group">
+        <legend>Sidebar</legend>
+        <label class="opt"><input type="checkbox" data-setting="fixedSidebar" <%= ui.fixedSidebar ? 'checked' : '' %>><span>Fixed sidebar</span></label>
+        <label class="opt"><input type="checkbox" data-setting="compactSidebar" <%= ui.compactSidebar ? 'checked' : '' %>><span>Compact sidebar (icons only)</span></label>
+      </fieldset>
+
+      <fieldset class="opt-group">
+        <legend>Dashboard</legend>
+        <label class="opt"><input type="radio" name="density" value="grid" data-setting="density" <%= ui.density === 'grid' ? 'checked' : '' %>><span>Grid</span></label>
+        <label class="opt"><input type="radio" name="density" value="comfortable" data-setting="density" <%= ui.density === 'comfortable' ? 'checked' : '' %>><span>Comfortable</span></label>
+      </fieldset>
+
+      <fieldset class="opt-group">
+        <legend>Accent colour</legend>
+        <div class="accent-swatches">
+          <% ACCENTS.forEach(a => { %>
+            <label class="accent-swatch" title="<%= a.label %>" style="--swatch: <%= a.color %>">
+              <input type="radio" name="accent" value="<%= a.key %>" data-setting="accent" <%= ui.accent === a.key ? 'checked' : '' %>>
+              <span></span><small><%= a.label %></small>
+            </label>
+          <% }) %>
+        </div>
+      </fieldset>
+      <p class="field-hint" data-appearance-status>&nbsp;</p>
+    </section>
+
+    <%# ---------------- Leave (employees) ---------------- %>
+    <% if (me.role === 'employee') { %>
+    <section x-show="tab === 'leave'" <% if (tab !== 'leave') { %>style="display:none"<% } %> x-data="{ kind: 'time_off' }">
+      <p class="muted">Send a note to your admin. Choose <strong>Time off</strong> if you will be away for a while, or <strong>Leave the portal</strong> if you are leaving the company and want your account closed.</p>
+      <form hx-post="/settings/leave" hx-target="#modal-root" hx-swap="innerHTML">
+        <div class="opt-group opt-inline">
+          <label class="opt"><input type="radio" name="kind" value="time_off" x-model="kind"><span>Time off</span></label>
+          <label class="opt"><input type="radio" name="kind" value="leave_portal" x-model="kind"><span>Leave the portal</span></label>
+        </div>
+        <div class="form-row" x-show="kind === 'time_off'">
+          <div class="form-group"><label for="lv-start">First day</label><input id="lv-start" type="date" name="start_date"></div>
+          <div class="form-group"><label for="lv-end">Last day</label><input id="lv-end" type="date" name="end_date"></div>
+        </div>
+        <div class="form-group">
+          <label for="lv-reason">Description for the admin</label>
+          <textarea id="lv-reason" name="reason" rows="4" required minlength="5" maxlength="2000" placeholder="Tell your admin what this is about"></textarea>
+        </div>
+        <p class="field-hint" x-show="kind === 'leave_portal'">If the admin approves, your account is closed and you can no longer log in.</p>
+        <button class="btn btn-primary btn-sm" type="submit"><%- icon('send', 14) %> Send to admin</button>
+      </form>
+
+      <% if (leaveRequests.length) { %>
+        <h4 class="modal-section">Your requests</h4>
+        <ul class="leave-history">
+          <% leaveRequests.forEach(r => { %>
+            <li>
+              <div class="leave-history-top">
+                <strong><%= r.kind === 'time_off' ? 'Time off' : 'Leave the portal' %></strong>
+                <span class="badge badge-status-<%= r.status === 'pending' ? 'submitted' : (r.status === 'approved' ? 'approved' : 'assigned') %>"><%= r.status %></span>
+              </div>
+              <% if (r.kind === 'time_off') { %><small class="muted"><%= r.start_date %> &rarr; <%= r.end_date %></small><% } %>
+              <p><%= r.reason %></p>
+              <% if (r.admin_note) { %><p class="muted">Admin: <%= r.admin_note %></p><% } %>
+            </li>
+          <% }) %>
+        </ul>
+      <% } %>
+    </section>
+    <% } %>
+  </div>
+</div>

@@ -1,0 +1,165 @@
+<%#
+  Daily-activity chart shared by the employee "Progress" tab and the admin employee page.
+  Locals: activity (see services/activity.js), exportUrl, canPickRange
+%>
+<div class="card chart-card activity-card" id="activity-card">
+  <div class="activity-head">
+    <div>
+      <h3>Daily activity</h3>
+      <p class="muted">Hours actively spent in the portal each day &middot; <span class="star-legend">&#9733;</span> marks a day something was completed</p>
+    </div>
+    <div class="activity-controls">
+      <div class="seg" role="group" aria-label="Chart type">
+        <button type="button" class="seg-btn active" data-chart-type="line">Line</button>
+        <button type="button" class="seg-btn" data-chart-type="bar">Bar</button>
+        <button type="button" class="seg-btn" data-chart-type="pie">Pie</button>
+      </div>
+      <% if (canPickRange) { %>
+        <div class="seg" role="group" aria-label="Period">
+          <% [7, 14, 30].forEach(n => { %>
+            <button type="button" class="seg-btn <%= activity.range === n ? 'active' : '' %>"
+                    hx-get="<%= typeof rangeUrl !== 'undefined' && rangeUrl ? rangeUrl : '/employee/tab/progress' %>?range=<%= n %>" hx-target="<%= typeof rangeTarget !== 'undefined' && rangeTarget ? rangeTarget : '#main-panel' %>" hx-swap="innerHTML"><%= n %>d</button>
+          <% }) %>
+        </div>
+      <% } %>
+      <a class="btn btn-ghost btn-sm" href="<%= exportUrl %>" title="Download as CSV for Excel, Power BI or Tableau"><%- icon('download', 14) %> CSV</a>
+    </div>
+  </div>
+
+  <div class="activity-summary">
+    <div><strong><%= activity.totalHours %>h</strong><span>total</span></div>
+    <div><strong><%= activity.avgHours %>h</strong><span>per active day</span></div>
+    <div><strong><%= activity.activeDays %>/<%= activity.range %></strong><span>days active</span></div>
+    <div><strong><%= activity.completedCount %></strong><span>completed &#9733;</span></div>
+  </div>
+
+  <div class="chart-wrap"><canvas id="activityChart" aria-label="Daily activity chart" role="img"></canvas></div>
+  <p class="chart-empty" data-chart-empty hidden></p>
+
+  <details class="activity-table">
+    <summary>Show the numbers</summary>
+    <table class="data-table">
+      <tr><th>Day</th><th>Time active</th><th>Completed</th></tr>
+      <% activity.days.slice().reverse().forEach(d => { %>
+        <tr>
+          <td><%= d.label %></td>
+          <td><%= Math.floor(d.seconds / 3600) %>h <%= Math.floor((d.seconds % 3600) / 60) %>m</td>
+          <td><% if (d.completed.length) { %><span class="star-legend">&#9733;</span> <%= d.completed.map(c => c.title).join(', ') %><% } else { %><span class="muted">&mdash;</span><% } %></td>
+        </tr>
+      <% }) %>
+    </table>
+  </details>
+  <p class="field-hint">Want Power BI or Tableau? Click <strong>CSV</strong>, then use <em>Get data &rarr; Text/CSV</em> (Power BI) or <em>Connect &rarr; Text file</em> (Tableau). Days follow the <%= activity.tz %> timezone.</p>
+</div>
+<script type="application/json" id="activity-data"><%- safeJson(activity) %></script>
+<script>
+(function () {
+  var root = document.getElementById('activity-card');
+  if (!root || root.dataset.ready) return;
+  root.dataset.ready = '1';
+  var data = JSON.parse(document.getElementById('activity-data').textContent);
+  var days = data.days;
+  var canvas = document.getElementById('activityChart');
+  var empty = root.querySelector('[data-chart-empty]');
+  if (!window.Chart) { empty.hidden = false; empty.textContent = 'The chart library could not be loaded. Check your internet connection and reload.'; return; }
+
+  var GOLD = '#f5b942';
+  var PALETTE = ['#8b5cf6', '#14b8a6', '#f59e0b', '#f43f5e', '#0ea5e9', '#22c55e', '#d946ef', '#6366f1', '#eab308', '#fb7185'];
+  var chart = null;
+  function css(name, fallback) { return getComputedStyle(document.body).getPropertyValue(name).trim() || fallback; }
+  function fmt(h) { var m = Math.round(h * 60); return Math.floor(m / 60) + 'h ' + (m % 60) + 'm'; }
+
+  // draws a gold star above the bars of days where something was completed
+  var starPlugin = {
+    id: 'completionStars',
+    afterDatasetsDraw: function (c) {
+      if (c.config.type !== 'bar') return;
+      var meta = c.getDatasetMeta(0), ctx = c.ctx;
+      ctx.save(); ctx.font = '17px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = GOLD;
+      meta.data.forEach(function (bar, i) { if (days[i].completed.length) ctx.fillText('\u2605', bar.x, bar.y - 6); });
+      ctx.restore();
+    }
+  };
+
+  function draw(type) {
+    if (chart) chart.destroy();
+    var accent = css('--accent', '#8b5cf6');
+    var text = css('--mist', '#9aa4c0');
+    var grid = 'rgba(154,164,192,0.18)';
+    var hasTime = days.some(function (d) { return d.seconds > 0; });
+    var hasDone = days.some(function (d) { return d.completed.length; });
+    empty.hidden = true;
+
+    var index = days.map(function (d, i) { return i; });
+    if (type === 'pie') index = index.filter(function (i) { return days[i].seconds > 0; });
+    if (type === 'pie' && !index.length) {
+      canvas.style.display = 'none'; empty.hidden = false;
+      empty.textContent = 'No time recorded in this period yet, so there is nothing to split up. Time is counted while you use the portal.';
+      return;
+    }
+    canvas.style.display = '';
+    if (!hasTime && !hasDone) { empty.hidden = false; empty.textContent = 'No activity recorded in this period yet. Hours appear here as the portal is used.'; }
+
+    var tooltip = {
+      callbacks: {
+        label: function (c) { var v = type === 'pie' ? c.parsed : c.parsed.y; return (type === 'pie' ? c.label + ': ' : '') + fmt(v); },
+        afterBody: function (items) {
+          var d = days[index[items[0].dataIndex]];
+          return d.completed.map(function (x) { return '\u2605 ' + x.title + ' (' + x.kind + ')'; });
+        }
+      }
+    };
+    var labels = index.map(function (i) { return days[i].label; });
+    var values = index.map(function (i) { return days[i].hours; });
+    var cfg;
+    if (type === 'pie') {
+      cfg = {
+        type: 'pie',
+        data: { labels: labels, datasets: [{ data: values, backgroundColor: index.map(function (i, k) { return PALETTE[k % PALETTE.length]; }),
+                borderColor: index.map(function (i) { return days[i].completed.length ? GOLD : 'rgba(0,0,0,0.25)'; }),
+                borderWidth: index.map(function (i) { return days[i].completed.length ? 3 : 1; }) }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { tooltip: tooltip, legend: { position: 'right', labels: { color: text, boxWidth: 12, generateLabels: function (c) {
+          var ds = c.data.datasets[0];
+          return c.data.labels.map(function (lab, i) {
+            return { text: (days[index[i]].completed.length ? '\u2605 ' : '') + lab, fillStyle: ds.backgroundColor[i], strokeStyle: ds.borderColor[i], lineWidth: 1, hidden: !c.getDataVisibility(i), index: i, fontColor: text };
+          });
+        } } } } }
+      };
+    } else {
+      var isLine = type === 'line';
+      cfg = {
+        type: type,
+        data: { labels: labels, datasets: [{
+          label: 'Hours active', data: values,
+          borderColor: accent, backgroundColor: isLine ? accent + '33' : days.map(function (d) { return d.completed.length ? GOLD : accent; }),
+          fill: isLine, tension: 0.3, borderWidth: isLine ? 2.5 : 0, borderRadius: 5, maxBarThickness: 26,
+          pointStyle: days.map(function (d) { return d.completed.length ? 'star' : 'circle'; }),
+          pointRadius: days.map(function (d) { return d.completed.length ? 11 : 3.5; }),
+          pointHoverRadius: days.map(function (d) { return d.completed.length ? 13 : 6; }),
+          pointBackgroundColor: days.map(function (d) { return d.completed.length ? GOLD : accent; }),
+          pointBorderColor: days.map(function (d) { return d.completed.length ? '#b7791f' : accent; })
+        }] },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          layout: { padding: { top: 18 } },
+          plugins: { legend: { display: false }, tooltip: tooltip },
+          scales: {
+            y: { beginAtZero: true, title: { display: true, text: 'Hours', color: text }, ticks: { color: text }, grid: { color: grid } },
+            x: { ticks: { color: text, maxRotation: 0, autoSkip: true }, grid: { display: false } }
+          }
+        },
+        plugins: [starPlugin]
+      };
+    }
+    chart = new Chart(canvas, cfg);
+  }
+
+  root.querySelectorAll('[data-chart-type]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      root.querySelectorAll('[data-chart-type]').forEach(function (b) { b.classList.toggle('active', b === btn); });
+      draw(btn.dataset.chartType);
+    });
+  });
+  draw('line'); // always starts as a line chart
+})();
+</script>

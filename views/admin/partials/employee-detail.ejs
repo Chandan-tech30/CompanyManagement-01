@@ -1,0 +1,53 @@
+<a class="back-link" href="/admin/tab/employees" hx-get="/admin/tab/employees" hx-target="#main-panel" hx-swap="innerHTML" hx-push-url="true">
+  <%- icon('arrowLeft', 16) %> All employees
+</a>
+
+<div class="panel-header-row employee-head">
+  <div class="employee-summary">
+    <div class="avatar avatar-lg">
+      <% if (employee.avatar_path) { %><img src="<%= employee.avatar_path %>" alt=""><% } else { %><%- icon('user', 26) %><% } %>
+    </div>
+    <div>
+      <h2><%= employee.full_name %></h2>
+      <p class="panel-sub"><%= employee.job_role %> &middot; <%= employee.email %><% if (employee.phone) { %> &middot; <%= employee.phone %><% } %></p>
+    </div>
+  </div>
+  <div class="employee-head-actions">
+    <%# The daily-activity graph only opens when Activity is clicked %>
+    <button type="button" class="btn btn-primary btn-sm" hx-get="/admin/employees/<%= employee.id %>/activity" hx-target="#modal-root" hx-swap="innerHTML">
+      <%- icon('trending', 14) %> Activity
+    </button>
+    <button type="button" class="btn btn-ghost btn-sm" title="Create a one-time password reset link for this employee"
+            hx-post="/admin/employees/<%= employee.id %>/reset-link" hx-target="#modal-root" hx-swap="innerHTML">
+      <%- icon('lock', 14) %> Reset password
+    </button>
+  </div>
+</div>
+
+<% if (employee.bio || employee.skills) { %>
+  <details class="employee-about">
+    <summary>About <%= employee.full_name.split(' ')[0] %></summary>
+    <div class="card employee-bio-card">
+      <% if (employee.bio) { %><p><%= employee.bio %></p><% } %>
+      <% if (employee.skills) { %>
+        <div class="skill-tags">
+          <% employee.skills.split(',').map(s => s.trim()).filter(Boolean).forEach(s => { %>
+            <span class="skill-tag"><%= s %></span>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+  </details>
+<% } %>
+
+<div class="work-page work-page-admin">
+  <section class="work-pane work-pane-tasks">
+    <h3 class="col-title">Work &amp; deadlines</h3>
+    <div class="work-pane-body">
+      <%- include('../../partials/tasks-panel', { tasks, viewerRole, employeeId, employeeName, canAssign, tasksRefreshUrl }) %>
+    </div>
+  </section>
+  <section class="work-pane work-pane-chat">
+    <%- include('../../partials/chat-panel', { chat, chatTitle: 'Chat with ' + employee.full_name }) %>
+  </section>
+</div>

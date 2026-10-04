@@ -1,0 +1,20 @@
+<div class="panel-header">
+  <h2>Announcement</h2>
+  <p class="panel-sub">News and updates from your admin.</p>
+</div>
+
+<div id="employee-announcements" class="announcement-list">
+  <% if (!announcements.length) { %>
+    <p class="empty-note">No announcements yet.</p>
+  <% } %>
+  <% announcements.forEach(a => { %>
+    <%- include('../../partials/announcement-card', { a, isAdmin: false, highlight }) %>
+  <% }) %>
+</div>
+<script>
+  document.querySelectorAll('[data-nav="announcements"]').forEach(function (el) { el.remove(); });
+  (function () {
+    var el = document.querySelector('.announcement-card.highlight');
+    if (el) el.scrollIntoView({ block: 'center' });
+  })();
+</script>

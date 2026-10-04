@@ -1,0 +1,34 @@
+<div class="panel-header">
+  <h2>Home</h2>
+  <p class="panel-sub">This feeds the company header and the employee Company tab.</p>
+</div>
+
+<% if (typeof justSaved !== 'undefined' && justSaved) { %><div class="inline-success"><%- icon('check', 14) %> Company info saved</div><% } %>
+
+<div class="card">
+  <form method="POST" action="/admin/company" enctype="multipart/form-data" class="profile-form">
+    <div class="profile-avatar-row">
+      <div class="avatar avatar-lg avatar-square">
+        <% if (company.logo_path) { %><img src="<%= company.logo_path %>" alt=""><% } else { %><%- icon('building', 26) %><% } %>
+      </div>
+      <label class="btn btn-ghost btn-sm file-btn">
+        Change logo
+        <input type="file" name="logo" accept="image/*" hidden>
+      </label>
+    </div>
+
+    <div class="form-group">
+      <label for="name">Company name</label>
+      <input id="name" type="text" name="name" value="<%= company.name %>" required>
+    </div>
+    <div class="form-group">
+      <label for="ethics">Ethics &amp; values</label>
+      <textarea id="ethics" name="ethics" rows="4"><%= company.ethics %></textarea>
+    </div>
+    <div class="form-group">
+      <label for="agenda">Agenda &amp; mission</label>
+      <textarea id="agenda" name="agenda" rows="4"><%= company.agenda %></textarea>
+    </div>
+    <button class="btn btn-primary" type="submit">Save</button>
+  </form>
+</div>
